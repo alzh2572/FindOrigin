@@ -58,8 +58,24 @@ export interface EntityExtractionResult {
   searchProfile: SearchProfile;
 }
 
+export type ConfidenceLevel = "high" | "medium" | "low";
+
+export interface RankedSource {
+  url: string;
+  title: string;
+  confidence: ConfidenceLevel;
+  confidenceScore: number;
+  reason: string;
+  isPrimary?: boolean;
+}
+
+export interface RankingResult {
+  sources: RankedSource[];
+  summary: string;
+}
+
 export interface ProcessResult {
   success: boolean;
   message: string;
-  extraction?: EntityExtractionResult;
+  sources?: RankedSource[];
 }
