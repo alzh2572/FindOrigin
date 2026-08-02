@@ -16,6 +16,23 @@ export class TelegramApiError extends Error {
   }
 }
 
+export interface InlineKeyboardButton {
+  text: string;
+  url?: string;
+  web_app?: { url: string };
+  callback_data?: string;
+}
+
+export interface InlineKeyboardMarkup {
+  inline_keyboard: InlineKeyboardButton[][];
+}
+
+export interface SendMessageOptions {
+  replyMarkup?: InlineKeyboardMarkup;
+  parseMode?: "HTML" | "Markdown" | "MarkdownV2";
+  disableWebPagePreview?: boolean;
+}
+
 async function callTelegramApi<T>(
   method: string,
   body: Record<string, unknown>,
@@ -61,13 +78,20 @@ async function callTelegramApi<T>(
 export async function sendMessage(
   chatId: number,
   text: string,
+  options: SendMessageOptions = {},
 ): Promise<SendMessageResult> {
-  return callTelegramApi<SendMessageResult>("sendMessage", {
+  const body: Record<string, unknown> = {
     chat_id: chatId,
     text,
-    parse_mode: "HTML",
-    disable_web_page_preview: true,
-  });
+    parse_mode: options.parseMode ?? "HTML",
+    disable_web_page_preview: options.disableWebPagePreview ?? true,
+  };
+
+  if (options.replyMarkup) {
+    body.reply_markup = options.replyMarkup;
+  }
+
+  return callTelegramApi<SendMessageResult>("sendMessage", body);
 }
 
 export async function setWebhook(url: string, secretToken?: string): Promise<void> {
